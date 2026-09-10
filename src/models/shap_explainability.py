@@ -58,3 +58,26 @@ def explain_prediction(
         "positive": positive,
         "negative": negative,
     }
+
+def plot_global_importance(
+    shap_values,
+    feature_names,
+    top_n=20,
+):
+    """Plot the top features by mean absolute SHAP importance."""
+    import matplotlib.pyplot as plt
+
+    importance = np.abs(shap_values).mean(axis=0)
+
+    top_indices = np.argsort(importance)[-top_n:]
+
+    plt.figure(figsize=(10, 8))
+    plt.barh(
+        np.array(feature_names)[top_indices],
+        importance[top_indices],
+    )
+    plt.xlabel("Mean Absolute SHAP Value")
+    plt.ylabel("Feature")
+    plt.title("Top SHAP Feature Importance")
+    plt.tight_layout()
+    plt.show()
