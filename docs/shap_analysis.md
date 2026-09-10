@@ -110,3 +110,54 @@ The SHAP framework will later be extended to generate individual applicant
 
 explanations for the decision engine and dashboard.
 
+## Individual Applicant Explanation
+
+An individual applicant-level SHAP explanation was generated for validation
+applicant `396899`.
+
+### Prediction
+
+- Calibrated default probability: **6.31%**
+- Actual validation target: **0 (non-default)**
+
+### Top Positive Risk Contributors
+
+| Feature | SHAP Contribution |
+|---|---:|
+| EXT_SOURCE_3 | +0.179328 |
+| EMPLOYMENT_AGE_RATIO | +0.121418 |
+| EXT_SOURCE_1 | +0.108799 |
+| DAYS_EMPLOYED_CLEAN | +0.089952 |
+| CODE_GENDER_F | +0.063236 |
+
+Positive SHAP values pushed the model prediction toward higher default risk
+for this applicant.
+
+### Top Negative Risk Contributors
+
+| Feature | SHAP Contribution |
+|---|---:|
+| AMT_GOODS_PRICE | -0.176913 |
+| NAME_EDUCATION_TYPE_Higher education | -0.125350 |
+| AMT_REQ_CREDIT_BUREAU_QRT | -0.115845 |
+| EXT_SOURCE_2 | -0.103760 |
+| NAME_EDUCATION_TYPE_Secondary / secondary special | -0.072468 |
+
+Negative SHAP values pushed the model prediction toward lower default risk
+for this applicant.
+
+### Interpretation
+
+The applicant received a predicted default probability of 6.31%. Although
+several features increased the predicted risk, other features provided
+substantial counteracting evidence and pushed the prediction toward lower
+risk.
+
+This demonstrates that SHAP can provide both the **risk score** and the
+**feature-level reasons** behind an individual prediction.
+
+The actual validation target for this applicant was 0, meaning the applicant
+did not default in the observed validation data.
+
+> SHAP contributions explain the model's prediction; they should not be
+> interpreted as causal effects.
