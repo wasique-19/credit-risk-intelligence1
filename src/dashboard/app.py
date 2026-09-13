@@ -1,6 +1,8 @@
 import requests
 import streamlit as st
 
+API_URL = "http://127.0.0.1:8000/predict"
+
 st.set_page_config(
     page_title="Credit Risk Intelligence",
     page_icon="💳",
@@ -11,9 +13,11 @@ st.title("💳 Credit Risk Intelligence")
 st.subheader("Loan Default Risk Prediction Dashboard")
 
 st.write(
-    "Enter an applicant ID to analyze default probability, "
-    "risk grade, business decision, and SHAP-based explanations."
+    "Analyze an applicant's predicted default probability, "
+    "risk grade, business decision, and SHAP-based risk drivers."
 )
+
+st.divider()
 
 applicant_id = st.number_input(
     "Applicant ID",
@@ -22,20 +26,23 @@ applicant_id = st.number_input(
 )
 
 if st.button("Analyze Risk", type="primary"):
+
     try:
         response = requests.post(
-            "http://127.0.0.1:8000/predict",
+            API_URL,
             json={"applicant_id": int(applicant_id)},
             timeout=30,
         )
 
         if response.status_code != 200:
             st.error(f"API error: {response.status_code}")
+
         else:
             result = response.json()
 
             if "error" in result:
                 st.error(result["error"])
+
             else:
                 probability = result["default_probability"]
                 risk_grade = result["risk_grade"]
@@ -63,23 +70,57 @@ if st.button("Analyze Risk", type="primary"):
                         decision,
                     )
 
+                st.progress(
+                    min(probability, 1.0),
+                    text=f"Predicted default risk: {probability:.2%}",
+                )
+
                 st.divider()
 
-                st.subheader("🔺 Positive Risk Contributors")
+                st.subheader("Risk Interpretation")
 
-                for item in result["positive_contributors"]:
-                    st.write(
-                        f"**{item['feature']}** — "
-                        f"{item['shap_value']:+.4f}"
+                if probability < 0.05:
+                    st.info(
+                        "Low predicted default risk. "
+                        "Current decision rule: APPROVE."
+                    )
+                elif probability < 0.20:
+                    st.warning(
+                        "Moderate predicted default risk. "
+                        "Current decision rule: MANUAL REVIEW."
+                    )
+                else:
+                    st.error(
+                        "High predicted default risk. "
+                        "Current decision rule: REJECT."
                     )
 
-                st.subheader("🔻 Negative Risk Contributors")
+                st.divider()
 
-                for item in result["negative_contributors"]:
-                    st.write(
-                        f"**{item['feature']}** — "
-                        f"{item['shap_value']:+.4f}"
-                    )
+                positive_col, negative_col = st.columns(2)
+
+                with positive_col:
+                    st.subheader("🔺 Positive Risk Contributors")
+
+                    for item in result["positive_contributors"]:
+                        st.write(
+                            f"**{item['feature']}**  \n"
+                            f"SHAP: `{item['shap_value']:+.4f}`"
+                        )
+
+                with negative_col:
+                    st.subheader("🔻 Negative Risk Contributors")
+
+                    for item in result["negative_contributors"]:
+                        st.write(
+                            f"**{item['feature']}**  \n"
+                            f"SHAP: `{item['shap_value']:+.4f}`"
+                        )
+
+                st.caption(
+                    "SHAP values explain model behavior and should not "
+                    "be interpreted as causal effects."
+                )
 
     except requests.exceptions.RequestException:
         st.error(
