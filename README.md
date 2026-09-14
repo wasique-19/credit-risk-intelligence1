@@ -1,921 +1,519 @@
-\# Credit Risk Intelligence
+# Credit Risk Intelligence
 
+**End-to-end machine learning system for loan default prediction, risk grading, business decisions, and SHAP-based explainability.**
 
+---
 
-An end-to-end machine learning system for predicting loan default risk, assigning risk grades and business decisions, and explaining individual predictions using SHAP.
+## 🚀 Project Overview
 
+This project builds an end-to-end **credit risk prediction system** using the **Home Credit Default Risk** dataset.
 
+The system answers three key business questions:
 
-\## Project Overview
+1. **What is the applicant's probability of default?**
+2. **What risk grade should the applicant receive?**
+3. **Should the application be approved, manually reviewed, or rejected?**
 
+### What this project includes
 
+* **Feature engineering**
+* **Leakage-safe preprocessing**
+* **Multiple ML model benchmarking**
+* **Probability calibration**
+* **Champion model selection**
+* **SHAP explainability**
+* **Business decision engine**
+* **Portfolio risk segmentation**
+* **FastAPI prediction API**
+* **Streamlit dashboard**
+* **Docker deployment**
+* **Automated testing**
 
-This project uses the \*\*Home Credit Default Risk\*\* dataset to build a practical credit-risk prediction pipeline.
+---
 
-
-
-The system answers three business questions:
-
-
-
-1\. What is the applicant's probability of default?
-
-2\. What risk grade should the applicant receive?
-
-3\. Should the application be approved, manually reviewed, or rejected?
-
-
-
-The final system includes:
-
-
-
-\* Feature engineering
-
-\* Leakage-safe preprocessing
-
-\* Multiple ML model benchmarks
-
-\* Probability calibration
-
-\* Champion model selection
-
-\* SHAP explainability
-
-\* Business decision engine
-
-\* Portfolio risk segmentation
-
-\* FastAPI prediction API
-
-\* Streamlit dashboard
-
-\* Docker deployment
-
-\* Automated validation tests
-
-
-
-\## Architecture
-
-
+## 🏗️ System Architecture
 
 ```text
-
 Home Credit Dataset
-
-&#x20;       │
-
-&#x20;       ▼
-
-Data Loading \& Validation
-
-&#x20;       │
-
-&#x20;       ▼
-
+        │
+        ▼
+Data Loading & Validation
+        │
+        ▼
 Feature Engineering
-
-&#x20;       │
-
-&#x20;       ▼
-
+        │
+        ▼
 Leakage-Safe Preprocessing
-
-&#x20;       │
-
-&#x20;       ▼
-
+        │
+        ▼
 Model Benchmarking
-
-&#x20;       │
-
-&#x20;       ├── Logistic Regression
-
-&#x20;       ├── Random Forest
-
-&#x20;       ├── XGBoost
-
-&#x20;       └── LightGBM
-
-&#x20;       │
-
-&#x20;       ▼
-
+        │
+        ├── Logistic Regression
+        ├── Random Forest
+        ├── XGBoost
+        └── LightGBM
+        │
+        ▼
 Calibrated LightGBM
-
-&#x20;       │
-
-&#x20;       ├── Default Probability
-
-&#x20;       ├── Risk Grade
-
-&#x20;       ├── Business Decision
-
-&#x20;       └── SHAP Explanation
-
-&#x20;               │
-
-&#x20;       ┌───────┴────────┐
-
-&#x20;       ▼                ▼
-
-&#x20;   FastAPI          Streamlit
-
-&#x20;       │                │
-
-&#x20;       └───────┬────────┘
-
-&#x20;               ▼
-
-&#x20;         Credit Risk Result
-
+        │
+        ├── Default Probability
+        ├── Risk Grade
+        ├── Business Decision
+        └── SHAP Explanation
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+     FastAPI         Streamlit
+        │                │
+        └───────┬────────┘
+                ▼
+        Credit Risk Result
 ```
 
+---
 
+## 📊 Dataset
 
-\## Dataset
-
-
-
-The project uses the \*\*Home Credit Default Risk\*\* dataset.
-
-
+The project uses the **Home Credit Default Risk** dataset.
 
 Primary files:
 
+* `application_train.csv`
+* `application_test.csv`
 
+Training dataset:
 
-\* `application\_train.csv`
+* **307,511 applicants**
+* **122 columns**
+* Default rate: **8.07%**
 
-\* `application\_test.csv`
+Because the dataset is highly imbalanced, **accuracy is not used as the primary evaluation metric**.
 
+Raw datasets are excluded from Git because of their size.
 
+---
 
-The training dataset contains \*\*307,511 applicants and 122 columns\*\*, including the `TARGET` default indicator.
+## 🧠 Feature Engineering
 
+The project creates domain-relevant credit-risk features including:
 
+* **Loan-to-income ratio**
+* **Annuity-to-income ratio**
+* **Credit-to-goods ratio**
+* **Applicant age**
+* **Clean employment duration**
+* **Employment-to-age ratio**
+* **Income per child**
+* **Income per family member**
+* **Credit minus income**
+* **Annuity minus income**
 
-The default rate is approximately \*\*8.07%\*\*, making this an imbalanced classification problem.
-
-
-
-Raw and processed datasets are intentionally excluded from Git because of their size.
-
-
-
-\## Feature Engineering
-
-
-
-The project creates additional risk-related features including:
-
-
-
-\* Loan-to-income ratio
-
-\* Annuity-to-income ratio
-
-\* Credit-to-goods ratio
-
-\* Applicant age
-
-\* Clean employment duration
-
-\* Employment-to-age ratio
-
-\* Income per child
-
-\* Income per family member
-
-\* Credit minus income
-
-\* Annuity minus income
-
-
-
-Feature engineering is implemented in:
-
-
+Implementation:
 
 ```text
-
-src/features/feature\_engineering.py
-
+src/features/feature_engineering.py
 ```
 
+---
 
-
-\## Model Benchmark
-
-
+## 🏆 Model Benchmark
 
 | Model                   |    ROC-AUC |     PR-AUC |
-
 | ----------------------- | ---------: | ---------: |
-
 | Logistic Regression     |     0.7493 |     0.2280 |
-
 | Random Forest           |     0.7368 |     0.2175 |
-
 | XGBoost                 |     0.7622 |     0.2532 |
-
 | LightGBM                |     0.7614 |     0.2550 |
+| **Calibrated LightGBM** | **0.7627** | **0.2552** |
 
-| \*\*Calibrated LightGBM\*\* | \*\*0.7627\*\* | \*\*0.2552\*\* |
+### Champion Model
 
+**Calibrated LightGBM**
 
+The model was selected using **PR-AUC**, which is especially useful for this imbalanced classification problem.
 
-Because the dataset is highly imbalanced, \*\*PR-AUC is considered alongside ROC-AUC\*\* rather than relying on accuracy alone.
+---
 
+## 🔬 Model Validation
 
+A stratified **3-fold cross-validation** analysis was performed.
 
-\## Model Validation
+| Metric  |       Mean |    Std |
+| ------- | ---------: | -----: |
+| ROC-AUC | **0.7584** | 0.0018 |
+| PR-AUC  | **0.2418** | 0.0032 |
 
+The relatively low standard deviation indicates **stable model performance across folds**.
 
+---
 
-A stratified 3-fold cross-validation analysis was performed on the LightGBM baseline.
+## 🎯 Probability Calibration
 
+The LightGBM model was calibrated using:
 
+```python
+CalibratedClassifierCV
+```
 
-Results:
+with **sigmoid calibration**.
 
+Final calibrated performance:
 
+* **ROC-AUC: 0.7627**
+* **PR-AUC: 0.2552**
 
-\* Mean ROC-AUC: \*\*0.7584\*\*
+Calibration helps make predicted probabilities more useful for downstream **risk-based decision making**.
 
-\* ROC-AUC standard deviation: \*\*0.0018\*\*
+---
 
-\* Mean PR-AUC: \*\*0.2418\*\*
+## 💳 Risk Decision Engine
 
-\* PR-AUC standard deviation: \*\*0.0032\*\*
+Predicted default probability is converted into a business-friendly risk grade.
 
-
-
-The low standard deviations indicate relatively stable model performance across folds.
-
-
-
-\## Probability Calibration
-
-
-
-The selected LightGBM model was calibrated using `CalibratedClassifierCV` with sigmoid calibration.
-
-
-
-The calibrated model achieved:
-
-
-
-\* ROC-AUC: \*\*0.7627\*\*
-
-\* PR-AUC: \*\*0.2552\*\*
-
-
-
-Calibration was evaluated using predicted-risk versus observed-default bins.
-
-
-
-\## Risk Decision Engine
-
-
-
-The model probability is converted into a business-friendly risk grade:
-
-
+### Risk Grades
 
 | Default Probability | Risk Grade |
-
 | ------------------: | :--------: |
+|              `< 5%` |    **A**   |
+|         `5% – <10%` |    **B**   |
+|        `10% – <20%` |    **C**   |
+|        `20% – <30%` |    **D**   |
+|             `≥ 30%` |    **E**   |
 
-|                < 5% |      A     |
+### Business Decisions
 
-|             5%–<10% |      B     |
+| Default Probability | Decision          |
+| ------------------: | ----------------- |
+|              `< 5%` | **APPROVE**       |
+|         `5% – <20%` | **MANUAL_REVIEW** |
+|             `≥ 20%` | **REJECT**        |
 
-|            10%–<20% |      C     |
+> These thresholds are illustrative business rules and should be optimized using real business costs, approval constraints, regulatory requirements, and historical outcomes before production use.
 
-|            20%–<30% |      D     |
+---
 
-|               ≥ 30% |      E     |
+## 🔎 SHAP Explainability
 
+The system uses **SHAP TreeExplainer** to explain individual LightGBM predictions.
 
+For each applicant, the system returns:
 
-Business decisions:
+* **Top positive risk contributors**
+* **Top negative risk contributors**
+* **SHAP values**
 
+### Example Applicant
 
+**Applicant ID:** `396899`
 
-| Default Probability | Decision      |
+**Default Probability:** `6.31%`
 
-| ------------------: | ------------- |
+**Risk Grade:** `B`
 
-|                < 5% | APPROVE       |
+**Decision:** `MANUAL_REVIEW`
 
-|             5%–<20% | MANUAL\_REVIEW |
+### Positive Risk Contributors
 
-|               ≥ 20% | REJECT        |
+1. `EXT_SOURCE_3`
+2. `EMPLOYMENT_AGE_RATIO`
+3. `EXT_SOURCE_1`
+4. `DAYS_EMPLOYED_CLEAN`
+5. `CODE_GENDER_F`
 
+### Negative Risk Contributors
 
+1. `AMT_GOODS_PRICE`
+2. `NAME_EDUCATION_TYPE_Higher education`
+3. `AMT_REQ_CREDIT_BUREAU_QRT`
+4. `EXT_SOURCE_2`
+5. `NAME_EDUCATION_TYPE_Secondary / secondary special`
 
-These thresholds are intentionally implemented as a simple business rule and should be recalibrated using real business costs, approval constraints, and regulatory requirements in a production environment.
+> **Important:** SHAP values explain model behavior and should not be interpreted as causal effects.
 
+---
 
+## 📈 Portfolio Risk Segmentation
 
-\## Explainability with SHAP
+Validation portfolio size:
 
+**61,503 applicants**
 
-
-The system uses \*\*SHAP TreeExplainer\*\* to explain individual LightGBM predictions.
-
-
-
-For each applicant, the API returns:
-
-
-
-\* Top positive risk contributors
-
-\* Top negative risk contributors
-
-\* SHAP values for each contributor
-
-
-
-Example applicant:
-
-
-
-```text
-
-Applicant ID: 396899
-
-Default Probability: 6.31%
-
-Risk Grade: B
-
-Decision: MANUAL\_REVIEW
-
-```
-
-
-
-Example positive contributors:
-
-
-
-```text
-
-EXT\_SOURCE\_3
-
-EMPLOYMENT\_AGE\_RATIO
-
-EXT\_SOURCE\_1
-
-DAYS\_EMPLOYED\_CLEAN
-
-CODE\_GENDER\_F
-
-```
-
-
-
-Example negative contributors:
-
-
-
-```text
-
-AMT\_GOODS\_PRICE
-
-NAME\_EDUCATION\_TYPE\_Higher education
-
-AMT\_REQ\_CREDIT\_BUREAU\_QRT
-
-EXT\_SOURCE\_2
-
-NAME\_EDUCATION\_TYPE\_Secondary / secondary special
-
-```
-
-
-
-SHAP values explain model behavior and should \*\*not be interpreted as causal effects\*\*.
-
-
-
-\## Portfolio Risk Segmentation
-
-
-
-On the validation portfolio of \*\*61,503 applicants\*\*:
-
-
+### Risk Grade Distribution
 
 | Risk Grade | Applicants |
-
 | ---------- | ---------: |
+| **A**      |     29,033 |
+| **B**      |     16,796 |
+| **C**      |     10,858 |
+| **D**      |      3,159 |
+| **E**      |      1,657 |
 
-| A          |     29,033 |
+### Business Decision Distribution
 
-| B          |     16,796 |
+| Decision          | Applicants | Share |
+| ----------------- | ---------: | ----: |
+| **APPROVE**       |     29,033 | 47.2% |
+| **MANUAL_REVIEW** |     27,654 | 45.0% |
+| **REJECT**        |      4,816 |  7.8% |
 
-| C          |     10,858 |
+Average predicted default probability:
 
-| D          |      3,159 |
+**8.04%**
 
-| E          |      1,657 |
+---
 
+## ⚡ FastAPI
 
+The project exposes the credit-risk model through a REST API.
 
-Business decisions:
-
-
-
-| Decision      | Applicants | Share |
-
-| ------------- | ---------: | ----: |
-
-| APPROVE       |     29,033 | 47.2% |
-
-| MANUAL\_REVIEW |     27,654 | 45.0% |
-
-| REJECT        |      4,816 |  7.8% |
-
-
-
-Average predicted default probability was approximately \*\*8.04%\*\*.
-
-
-
-\## FastAPI
-
-
-
-The project provides a REST API for applicant-level prediction.
-
-
-
-Start the API:
-
-
+### Start API
 
 ```powershell
-
 uvicorn src.api.main:app --reload
-
 ```
 
-
-
-API:
-
-
+API URL:
 
 ```text
-
 http://127.0.0.1:8000
-
 ```
-
-
 
 Swagger documentation:
 
-
-
 ```text
-
 http://127.0.0.1:8000/docs
-
 ```
 
-
-
-Health check:
-
-
+### Health Check
 
 ```text
-
 GET /health
-
 ```
 
-
-
-Prediction:
-
-
+### Prediction Endpoint
 
 ```text
-
 POST /predict
-
 ```
-
-
 
 Example request:
 
-
-
 ```json
-
 {
-
-&#x20; "applicant\_id": 396899
-
+  "applicant_id": 396899
 }
-
 ```
-
-
 
 Example response:
 
-
-
 ```json
-
 {
-
-&#x20; "applicant\_id": 396899,
-
-&#x20; "default\_probability": 0.06305131775793747,
-
-&#x20; "risk\_grade": "B",
-
-&#x20; "decision": "MANUAL\_REVIEW"
-
+  "applicant_id": 396899,
+  "default_probability": 0.06305131775793747,
+  "risk_grade": "B",
+  "decision": "MANUAL_REVIEW"
 }
-
 ```
 
+The endpoint also returns **SHAP-based positive and negative contributors**.
 
+---
 
-The prediction endpoint also returns SHAP-based positive and negative contributors.
+## 🖥️ Streamlit Dashboard
 
-
-
-\## Streamlit Dashboard
-
-
-
-The project includes an interactive Streamlit dashboard.
-
-
+The project includes an interactive **Streamlit dashboard**.
 
 Start it with:
 
-
-
 ```powershell
-
 streamlit run src/dashboard/app.py
-
 ```
-
-
 
 The dashboard displays:
 
+* **Default probability**
+* **Risk grade**
+* **Business decision**
+* **Risk interpretation**
+* **Positive SHAP contributors**
+* **Negative SHAP contributors**
 
+The Streamlit application communicates with the **FastAPI backend**.
 
-\* Default probability
+---
 
-\* Risk grade
+## 🐳 Docker
 
-\* Business decision
+The FastAPI application is containerized using Docker.
 
-\* Risk interpretation
-
-\* Positive SHAP contributors
-
-\* Negative SHAP contributors
-
-
-
-The dashboard communicates with the FastAPI backend.
-
-
-
-\## Docker
-
-
-
-The FastAPI service can be packaged as a Docker image.
-
-
-
-Build:
-
-
+### Build Image
 
 ```powershell
-
 docker build -t credit-risk-api .
-
 ```
 
-
-
-Run:
-
-
+### Run Container
 
 ```powershell
-
 docker run -d --name credit-risk-api-container -p 8000:8000 credit-risk-api
-
 ```
 
-
-
-Health check:
-
-
+### Health Check
 
 ```powershell
-
 curl http://localhost:8000/health
-
 ```
 
+The Docker image packages the API, model, required data, and Python dependencies.
 
+---
 
-The Docker image contains the application code, calibrated model, raw application data required by the current API implementation, and Python dependencies.
+## 🧪 Testing
 
+Automated tests cover:
 
-
-\## Testing
-
-
-
-Automated tests are included for:
-
-
-
-\* Decision-engine boundaries
-
-\* Data validation
-
-\* Feature engineering
-
-
+* **Decision-engine boundaries**
+* **Data validation**
+* **Feature engineering**
 
 Run:
 
-
-
 ```powershell
-
 pytest -q
-
 ```
-
-
 
 Current result:
 
-
-
 ```text
-
 9 passed
-
 ```
 
-
-
-Python syntax can also be checked with:
-
-
+Python syntax validation:
 
 ```powershell
-
 python -m compileall src tests
-
 ```
 
+---
 
-
-\## Project Structure
-
-
+## 📁 Project Structure
 
 ```text
-
 credit-risk-intelligence1/
-
 │
-
 ├── data/
-
 │   ├── raw/
-
 │   └── processed/
-
 │
-
 ├── notebooks/
-
-│   ├── 01\_initial\_eda.ipynb
-
-│   ├── 02\_feature\_engineering.ipynb
-
-│   └── 03\_shap\_visualization.ipynb
-
+│   ├── 01_initial_eda.ipynb
+│   ├── 02_feature_engineering.ipynb
+│   └── 03_shap_visualization.ipynb
 │
-
 ├── src/
-
 │   ├── api/
-
 │   │   └── main.py
-
 │   │
-
 │   ├── dashboard/
-
 │   │   └── app.py
-
 │   │
-
 │   ├── data/
-
-│   │   ├── data\_loader.py
-
-│   │   └── data\_validation.py
-
+│   │   ├── data_loader.py
+│   │   └── data_validation.py
 │   │
-
 │   ├── features/
-
-│   │   ├── data\_preparation.py
-
-│   │   ├── feature\_engineering.py
-
+│   │   ├── data_preparation.py
+│   │   ├── feature_engineering.py
 │   │   └── preprocessing.py
-
 │   │
-
 │   └── models/
-
-│       ├── baseline\_model.py
-
-│       ├── random\_forest\_model.py
-
-│       ├── xgboost\_model.py
-
-│       ├── lightgbm\_model.py
-
-│       ├── model\_evaluation.py
-
-│       ├── threshold\_analysis.py
-
+│       ├── baseline_model.py
+│       ├── random_forest_model.py
+│       ├── xgboost_model.py
+│       ├── lightgbm_model.py
+│       ├── model_evaluation.py
+│       ├── threshold_analysis.py
 │       ├── calibration.py
-
-│       ├── model\_selection.py
-
-│       ├── cross\_validation.py
-
-│       ├── shap\_explainability.py
-
-│       ├── decision\_engine.py
-
-│       ├── portfolio\_analysis.py
-
-│       └── credit\_risk\_engine.py
-
+│       ├── model_selection.py
+│       ├── cross_validation.py
+│       ├── shap_explainability.py
+│       ├── decision_engine.py
+│       ├── portfolio_analysis.py
+│       └── credit_risk_engine.py
 │
-
 ├── tests/
-
 ├── models/
-
 ├── docs/
-
 ├── Dockerfile
-
 ├── pytest.ini
-
 ├── requirements.txt
-
 └── README.md
-
 ```
 
-
-
-\## Key Engineering Practices
-
-
-
-This project demonstrates:
-
-
-
-\* Stratified train/validation splitting
-
-\* Leakage-safe preprocessing
-
-\* Reusable sklearn pipelines
-
-\* Class-imbalance awareness
-
-\* Multiple model benchmarking
-
-\* Cross-validation
-
-\* Probability calibration
-
-\* Threshold analysis
-
-\* SHAP explainability
-
-\* Modular Python architecture
-
-\* REST API development
-
-\* Interactive dashboard development
-
-\* Automated testing
-
-\* Docker containerization
-
-\* Git/GitHub version control
-
-
-
-\## Limitations
-
-
-
-This is a portfolio project and should not be treated as a production lending system.
-
-
-
-Important limitations include:
-
-
-
-\* The model is trained primarily on the Home Credit application table.
-
-\* Decision thresholds are illustrative business rules.
-
-\* Model performance can change on new populations.
-
-\* SHAP explanations describe model behavior, not causal relationships.
-
-\* Production credit decisions require fairness, compliance, monitoring, governance, and human oversight.
-
-\* Additional Home Credit relational tables could be incorporated for richer feature engineering.
-
-
-
-\## Future Improvements
-
-
-
-Potential next steps:
-
-
-
-\* Integrate additional Home Credit tables
-
-\* Hyperparameter optimization
-
-\* More rigorous probability calibration
-
-\* Cost-sensitive threshold optimization
-
-\* Fairness and bias analysis
-
-\* Model monitoring
-
-\* Data drift detection
-
-\* PostgreSQL integration
-
-\* Authentication and API security
-
-\* CI/CD pipeline
-
-\* Cloud deployment
-
-
-
-\## Author
-
-
-
-\*\*Wasique\*\*
-
-
+---
+
+## 🛠️ Engineering Practices
+
+This project demonstrates practical ML engineering concepts:
+
+* **Stratified train/validation splitting**
+* **Leakage-safe preprocessing**
+* **Reusable scikit-learn pipelines**
+* **Class-imbalance awareness**
+* **Multiple model benchmarking**
+* **Cross-validation**
+* **Probability calibration**
+* **Threshold analysis**
+* **SHAP explainability**
+* **Modular Python architecture**
+* **REST API development**
+* **Interactive dashboard development**
+* **Automated testing**
+* **Docker containerization**
+* **Git/GitHub version control**
+
+---
+
+## ⚠️ Limitations
+
+This is a **portfolio project**, not a production lending system.
+
+Important limitations:
+
+* The model primarily uses the Home Credit application table.
+* Decision thresholds are illustrative.
+* Model performance may change on new populations.
+* SHAP explains model behavior rather than causality.
+* Production lending requires fairness and bias analysis.
+* Production systems require regulatory compliance and governance.
+* Human oversight should remain part of high-impact credit decisions.
+
+---
+
+## 🔮 Future Improvements
+
+Potential improvements include:
+
+* **Integrate additional Home Credit tables**
+* **Hyperparameter optimization**
+* **Advanced probability calibration**
+* **Cost-sensitive threshold optimization**
+* **Fairness and bias analysis**
+* **Model monitoring**
+* **Data drift detection**
+* **PostgreSQL integration**
+* **API authentication**
+* **CI/CD pipeline**
+* **Cloud deployment**
+
+---
+
+## 👨‍💻 Author
+
+**Wasique**
 
 Machine Learning / Data Science Portfolio Project
 
+### GitHub
 
-
-GitHub: `wasique-19/credit-risk-intelligence1`
+**Repository:** `wasique-19/credit-risk-intelligence1`
